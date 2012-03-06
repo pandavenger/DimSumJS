@@ -1,0 +1,126 @@
+
+<html>
+<head>
+<title>DimSum JS Framework</title>
+</head>
+<body>
+<script type="text/javascript" src="dimsum.js">
+</script>
+<script type="text/javascript">
+ds_create_window(320,480);
+function createPlayer(){
+	obj = ds_create_object((ds_width-16)/2,ds_height-16,16,16,"");
+	obj.color = "#0AF";
+	obj.addType('player');
+	obj.define('cooldown',10);
+	obj.room_bind = true;
+	obj.step = function(){
+		if (this.collides_type(this.x,this.y,'enem')){
+			ds_clear_room();
+			createGameOver();
+		}
+		if (ds_key[key_left]){
+			this.speed = 4;
+			this.direction = 180;
+		}
+		else if (ds_key[key_right]){
+			this.speed = 4;
+			this.direction = 0;
+		}
+		else{
+			this.speed = 0;
+		}
+		if (this.user.cooldown > 0){
+			this.user.cooldown -= 1;
+		}
+		if (ds_key[key_space] && this.user.cooldown == 0){
+			createBullet(this.x+8,this.y);
+			this.user.cooldown = 10;
+		}
+	};
+	return obj;
+}
+function createEnemy(){
+	obj = ds_create_object(Math.floor((ds_width-16)*Math.random()),-64,16,16,"");
+	obj.color = "#FA0";
+	obj.addType('enem');
+	obj.direction = 270;
+	obj.speed = 1;
+	obj.step = function(){
+		if (this.y > ds_height){
+			this.destroy();
+			createEnemy();
+		}
+		if (this.collides_type(this.x,this.y,'bullet')){
+			createExplosion(this.x+8,this.y+8);
+			ds_other.destroy();
+			this.destroy();
+			createEnemy();
+		}
+	};
+	return obj;
+}
+function createBullet(x,y){
+	obj = ds_create_object(x,y,2,4,"");
+	obj.color = "#F0A";
+	obj.addType('bullet');
+	obj.direction = 90;
+	obj.speed = 8;
+	obj.step = function(){
+		if (this.y < -8){
+			this.destroy();
+		}
+	};
+	return obj;
+}
+function createExplosion(x,y){
+	obj = ds_create_object(x,y,4,4,"");
+	obj.color = "#FF0";
+	obj.step = function(){
+		this.scaleX+=0.5;
+		this.scaleY+=0.5;
+		this.opacity-=0.01;
+		if (this.opacity < 0){
+			this.destroy();
+		}
+	};
+	return obj;
+}
+function startGame(){
+	player = createPlayer();
+	for (i = 0; i < 5; i++){
+		createEnemy();
+	}
+}
+function createTitle(){
+	obj = ds_create_object(0,0,ds_width,ds_height,"title.png");
+	obj.setSprite("title.png", 60,2);
+	obj.step = function(){
+		this.animate();
+	};
+	obj.div.onclick = function(){
+		ds_clear_room();
+		startGame();
+	}
+	return obj;	
+}
+function createGameOver(){
+	obj = ds_create_object(0,0,ds_width,ds_height,"gameover.png");
+	obj.setSprite("gameover.png", 0,1);
+	obj.step = function(){
+		this.scaleX+=0.01;
+		this.scaleY+=0.01;
+		this.rotateZ+= 1;
+		this.opacity-=0.01;
+		if (this.opacity < 0){
+			ds_clear_room();
+			createTitle();
+		}
+	};
+	return obj;	
+}
+createTitle();
+ds_start_loop(15);
+</script>
+</body>
+<html>
