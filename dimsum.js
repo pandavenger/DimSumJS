@@ -1,4 +1,4 @@
-// Ruochen Tang - DimSumJS Javascript Game Framework
+// Ruochen Tang - DimSumJS HTML5/CSS3/Javascript Game Framework
 // Copyright (C) 2012 Ruochen Tang
 
 // This program is free software: you can redistribute it and/or modify
